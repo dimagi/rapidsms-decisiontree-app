@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.contrib import admin
-from tree.models import *
+from decisiontree.models import *
 
 admin.site.register(Tree)
 admin.site.register(Question)

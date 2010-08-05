@@ -1,4 +1,4 @@
-{% extends base_template %}
+{% extends "layout.html" %}
 {% block title %}Decision Trees{% endblock %}
 {% block page_stylesheets %}<link type="text/css" rel="stylesheet" href="/static/tree/stylesheets/tree.css" />{% endblock %}
 {% block content %}
@@ -23,7 +23,7 @@
 			<tr class="no-data">
 				<td colspan="2">
 					No Trees Yet.
-					<a href="" class="add">
+					<a href="admin/decisiontree/" class="add">
 						Add a Tree
 					</a>
 				</td>

@@ -1,15 +1,12 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import rapidsms
-from rapidsms.connection import Connection 
-from rapidsms.message import Message
+from rapidsms.apps.base import AppBase
+from rapidsms.models import Connection
+from rapidsms.messages import OutgoingMessage
 from models import *
-from reporters.models import Reporter
-from i18n.utils import get_translation as _
-from i18n.utils import get_language_code 
 
-class App(rapidsms.app.App):
+class App(AppBase):
     
     registered_functions = {}
     session_listeners = {}
@@ -73,21 +70,17 @@ class App(rapidsms.app.App):
                 else:
                     # send them some hints about how to respond
                     if state.question.error_response:
-                        response = (_(state.question.error_response, get_language_code(session.connection)))
-                        if "%(answer)s" in response:
-                            response = response % ({"answer" : msg.text})
+                        
+                        response = state.question.error_response
                     else:
                         flat_answers = " or ".join([trans.answer.helper_text() for trans in transitions])
                         # Make translation happen all at the end.  This is currently more practical
                         #translated_answers = _(flat_answers, get_language_code(session.connection))
                         #response = _('"%(answer)s" is not a valid answer. You must enter %(hint)s', 
                         #             get_language_code(session.connection))% ({"answer" : msg.text, "hint": translated_answers})
-                        untranslated_response ='"%(answer)s" is not a valid answer. You must enter ' + flat_answers
-                        response = _(untranslated_response,
-                                     get_language_code(session.connection))% ({"answer" : msg.text})
-                        
-                         
-                    msg.respond(response)
+                        response ='"%(answer)s" is not a valid answer. You must enter ' + flat_answers
+                    
+                    msg.respond(response, {"answer":msg.text})
                     
                     # update the number of times the user has tried
                     # to answer this.  If they have reached the 
@@ -96,8 +89,8 @@ class App(rapidsms.app.App):
                     session.num_tries = session.num_tries + 1
                     if state.num_retries and session.num_tries >= state.num_retries:
                         session.state = None
-                        msg.respond(_("Sorry, invalid answer %(retries)s times. Your session will now end. Please try again later.",
-                                      get_language_code(session.connection)) % {"retries": session.num_tries })
+                        msg.respond("Sorry, invalid answer %(retries)s times. Your session will now end. Please try again later.", 
+                                    {"retries": session.num_tries })
                         
                     session.save()
                     return True
@@ -129,7 +122,7 @@ class App(rapidsms.app.App):
             if not session.state:
                 self._end_session(session)
                 if session.tree.completion_text:
-                    msg.respond(_(session.tree.completion_text, get_language_code(session.connection)))
+                    msg.respond(session.tree.completion_text)
                 
             # if there is a next question ready to ask
             # send it along
@@ -157,7 +150,7 @@ class App(rapidsms.app.App):
         '''Sends the next question in the session, if there is one''' 
         state = session.state
         if state and state.question:
-            response = _(state.question.text, get_language_code(session.connection))
+            response = state.question.text
             self.info("Sending: %s" % response)
             if msg:
                 msg.respond(response)
@@ -167,7 +160,7 @@ class App(rapidsms.app.App):
                 real_backend = self.router.get_backend(session.connection.backend.slug)
                 if real_backend:
                     connection = Connection(real_backend, session.connection.identity)
-                    outgoing_msg = Message(connection, response)
+                    outgoing_msg = OutgoingMessage(connection, response)
                     self.router.outgoing(outgoing_msg)
                 else: 
                     # todo: do we want to fail more loudly than this?

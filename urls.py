@@ -3,7 +3,7 @@
 
 import os
 from django.conf.urls.defaults import *
-import tree.views as views
+import decisiontree.views as views
 
 urlpatterns = patterns('',
     (r'^tree$', views.index),

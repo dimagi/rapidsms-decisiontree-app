@@ -1,0 +1,3 @@
+This application is a generic implementation of a decision tree, which is completely database-configured. Install this app, populate the db using django's admin UI, and boom: there's your decision tree, interactive poll, whatever you want to call it. Have a look at models.py to understand what each model is for. Most are pretty straightforward: e.g., if you want to add a new question, then create a new Question.
+
+
