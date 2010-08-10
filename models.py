@@ -3,7 +3,6 @@
 
 
 from django.db import models
-#from reporters.models import Reporter, PersistantConnection
 from rapidsms.models import Contact, Connection
 import re
 

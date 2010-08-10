@@ -22,12 +22,12 @@ class App(AppBase):
         # they're not currently answering a question tree, so
         # just search for triggers and return
         sessions = Session.objects.all().filter(state__isnull=False)\
-            .filter(connection=msg.persistant_connection)
+            .filter(connection=msg.connection)
         if not sessions:
             try:
                 tree = Tree.objects.get(trigger=msg.text)
                 # start a new session for this person and save it
-                self.start_tree(tree, msg.persistant_connection, msg)
+                self.start_tree(tree, msg.connection, msg)
                 return True
             # no trigger found? no big deal. the
             # message is probably for another app

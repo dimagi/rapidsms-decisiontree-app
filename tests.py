@@ -1,13 +1,15 @@
 from rapidsms.tests.scripted import TestScript
 from app import App
-import reporters.app as reporters_app
-import i18n.app as i18n_app
+#import reporters.app as reporters_app
+#import i18n.app as i18n_app
 
 from models import *
-from reporters.models import Reporter, PersistantConnection, PersistantBackend
+#from reporters.models import Reporter, PersistantConnection, PersistantBackend
+from rapidsms.models import Contact, Connection
     
 class TestApp (TestScript):
-    apps = (App, reporters_app.App)
+    #apps = (App, reporters_app.App)
+    apps = (App)
     # the test_backend script does the loading of the dummy backend that allows reporters
     # to work properly in tests
     fixtures = ['test_backend', 'test_tree']
@@ -43,7 +45,8 @@ class TestApp (TestScript):
          
     def testLocalization(self):
         '''Tests very basic localization of trees'''
-        reporter = self._register('0004', 'en', "loc_en")
+        #reporter = self._register('0004', 'en', "loc_en")
+        contact = self._register('0004', 'en', "loc_en")
         script = """
               loc_en > test
               loc_en < hello
@@ -73,17 +76,18 @@ class TestApp (TestScript):
         self.runScript(script)
         
          
-    def _register(self, alias, language, phone):
+    def _register(self, name, language, phone):
         """Register a user"""
         # create the reporter object for this person 
-        reporter =  Reporter.objects.create(alias=alias, language=language)
+        #reporter =  Reporter.objects.create(alias=alias, language=language)
+        contact =  Contact.objects.create(name=name, language=language)
         
         # running this script ensures the connection gets created by the reporters app
         self.runScript("%s > hello world" % phone)
-        connection = PersistantConnection.objects.get(identity=phone)
-        connection.reporter = reporter
+        connection = Connection.objects.get(identity=phone)
+        connection.contact = contact
         connection.save()
-        return reporter
+        return contact
     
         
          
